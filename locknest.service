@@ -1,0 +1,15 @@
+[Unit]
+Description=LockNest Password Manager
+After=network.target
+
+[Service]
+Type=simple
+User=overapt
+WorkingDirectory=/home/overapt/LockNest-
+Environment="PATH=/home/overapt/LockNest-/venv/bin"
+ExecStart=/home/overapt/LockNest-/venv/bin/python /home/overapt/LockNest-/app.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

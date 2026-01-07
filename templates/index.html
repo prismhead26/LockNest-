@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LockNest - Password Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="screen hidden">
+        <div class="auth-container">
+            <div class="lock-icon">🔒</div>
+            <h1>Welcome to LockNest</h1>
+            <p>Set up your master password to get started</p>
+            <form id="setup-form">
+                <div class="input-group">
+                    <input type="password" id="setup-password" placeholder="Master Password" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="setup-password-confirm" placeholder="Confirm Master Password" required>
+                </div>
+                <p class="help-text">Your master password must be at least 8 characters. Don't forget it - it cannot be recovered!</p>
+                <button type="submit" class="btn btn-primary">Set Master Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen hidden">
+        <div class="auth-container">
+            <div class="lock-icon">🔐</div>
+            <h1>LockNest</h1>
+            <p>Enter your master password to unlock</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Master Password" required autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary">Unlock</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="screen hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>🔒 LockNest</h1>
+                <div class="header-actions">
+                    <input type="text" id="search-input" placeholder="Search passwords..." class="search-input">
+                    <button id="add-password-btn" class="btn btn-primary">+ Add Password</button>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="app-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Categories</h3>
+                    <div id="categories-list" class="categories-list">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                    <button id="add-category-btn" class="btn btn-text">+ Add Category</button>
+                </div>
+            </aside>
+
+            <!-- Password List -->
+            <main class="main-content">
+                <div class="content-header">
+                    <h2 id="current-category">All Passwords</h2>
+                    <span id="password-count" class="count-badge">0</span>
+                </div>
+                <div id="passwords-list" class="passwords-list">
+                    <!-- Passwords will be loaded here -->
+                </div>
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-icon">🔑</div>
+                    <h3>No passwords yet</h3>
+                    <p>Click "Add Password" to create your first password entry</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Password Modal -->
+    <div id="password-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Password</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="password-form">
+                <input type="hidden" id="password-id">
+                <div class="input-group">
+                    <label for="password-title">Title *</label>
+                    <input type="text" id="password-title" required>
+                </div>
+                <div class="input-group">
+                    <label for="password-username">Username / Email</label>
+                    <input type="text" id="password-username">
+                </div>
+                <div class="input-group">
+                    <label for="password-password">Password *</label>
+                    <div class="password-input-group">
+                        <input type="password" id="password-password" required>
+                        <button type="button" id="toggle-password" class="btn-icon">👁️</button>
+                        <button type="button" id="generate-password" class="btn-icon">🎲</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="password-url">URL</label>
+                    <input type="url" id="password-url">
+                </div>
+                <div class="input-group">
+                    <label for="password-category">Category</label>
+                    <select id="password-category">
+                        <option value="">No Category</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="password-notes">Notes</label>
+                    <textarea id="password-notes" rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="password-master">Master Password *</label>
+                    <input type="password" id="password-master" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Password Generator Modal -->
+    <div id="generator-modal" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Password Generator</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="generator-content">
+                <div class="generated-password">
+                    <input type="text" id="generated-password" readonly>
+                    <button type="button" id="copy-generated" class="btn-icon">📋</button>
+                </div>
+                <div class="input-group">
+                    <label for="gen-length">Length: <span id="length-value">16</span></label>
+                    <input type="range" id="gen-length" min="8" max="64" value="16">
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="gen-uppercase" checked> Uppercase (A-Z)</label>
+                    <label><input type="checkbox" id="gen-lowercase" checked> Lowercase (a-z)</label>
+                    <label><input type="checkbox" id="gen-digits" checked> Digits (0-9)</label>
+                    <label><input type="checkbox" id="gen-symbols" checked> Symbols (!@#$...)</label>
+                </div>
+                <button type="button" id="regenerate-btn" class="btn btn-primary full-width">Generate</button>
+                <button type="button" id="use-generated-btn" class="btn btn-secondary full-width">Use This Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Password Modal -->
+    <div id="view-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="view-title">Password Details</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="view-content">
+                <div class="view-field">
+                    <label>Title</label>
+                    <div id="view-password-title" class="view-value"></div>
+                </div>
+                <div class="view-field">
+                    <label>Username</label>
+                    <div id="view-password-username" class="view-value"></div>
+                </div>
+                <div class="view-field">
+                    <label>Password</label>
+                    <div class="password-reveal">
+                        <input type="password" id="view-password-password" readonly>
+                        <button type="button" id="reveal-password" class="btn-icon">👁️</button>
+                        <button type="button" id="copy-password" class="btn-icon">📋</button>
+                    </div>
+                </div>
+                <div class="view-field">
+                    <label>URL</label>
+                    <div id="view-password-url" class="view-value"></div>
+                </div>
+                <div class="view-field">
+                    <label>Category</label>
+                    <div id="view-password-category" class="view-value"></div>
+                </div>
+                <div class="view-field">
+                    <label>Notes</label>
+                    <div id="view-password-notes" class="view-value"></div>
+                </div>
+                <div class="input-group">
+                    <label for="view-master-password">Enter Master Password to Decrypt</label>
+                    <input type="password" id="view-master-password" placeholder="Master Password">
+                    <button type="button" id="decrypt-btn" class="btn btn-primary">Decrypt</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="edit-password-btn" class="btn btn-secondary">Edit</button>
+                <button type="button" id="delete-password-btn" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
