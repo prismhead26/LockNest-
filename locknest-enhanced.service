@@ -23,7 +23,8 @@ ProtectSystem=strict
 ReadWritePaths=/home/overapt/LockNest-
 
 # Restrict access to /home, /root, and /run/user
-ProtectHome=true
+# Using read-only to allow application execution from /home
+ProtectHome=read-only
 
 # Deny access to kernel logs
 ProtectKernelLogs=true
