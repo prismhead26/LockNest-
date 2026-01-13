@@ -1,0 +1,70 @@
+[Unit]
+Description=LockNest Password Manager (Enhanced Security)
+After=network.target
+
+[Service]
+Type=simple
+User=overapt
+WorkingDirectory=/home/overapt/LockNest-
+Environment="PATH=/home/overapt/LockNest-/venv/bin"
+ExecStart=/home/overapt/LockNest-/venv/bin/python /home/overapt/LockNest-/app.py
+Restart=always
+RestartSec=10
+
+# Security Hardening
+# Prevent privilege escalation
+NoNewPrivileges=true
+
+# Private /tmp directory
+PrivateTmp=true
+
+# Read-only root filesystem (except for specified directories)
+ProtectSystem=strict
+ReadWritePaths=/home/overapt/LockNest-
+
+# Restrict access to /home, /root, and /run/user
+ProtectHome=true
+
+# Deny access to kernel logs
+ProtectKernelLogs=true
+
+# Deny loading kernel modules
+ProtectKernelModules=true
+
+# Deny access to kernel tunables
+ProtectKernelTunables=true
+
+# Prevent access to /proc/<pid> of other processes
+ProtectProc=invisible
+
+# Restrict namespace creation
+RestrictNamespaces=true
+
+# Deny real-time scheduling
+RestrictRealtime=true
+
+# Filter system calls
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount
+
+# Lock personality
+LockPersonality=true
+
+# Restrict address families to IPv4 and IPv6
+RestrictAddressFamilies=AF_INET AF_INET6
+
+# Make /usr, /boot, /efi read-only
+ProtectKernelModules=true
+
+# Remove write and execute permissions from directories
+PrivateDevices=true
+
+# Limit capabilities
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+# Memory protection
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
